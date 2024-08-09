@@ -24,6 +24,8 @@ import gzip
 import requests
 import functools
 import shutil
+import pickle
+from pathlib import Path
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import cpu_count
@@ -33,17 +35,24 @@ class CrossrefSnapshot:
 
     def __init__(self,
                  snapshot_date: list[int],
-                 filename: str,
                  download_path: str,
-                 transform_path: str):
+                 transform_path: str,
+                 filename: str = 'crossref.json'):
 
         self.snapshot_date = snapshot_date
         self.filename = filename
         self.download_path = download_path
         self.transform_path = transform_path
 
-        os.makedirs(download_path, exist_ok=False)
-        os.makedirs(transform_path, exist_ok=False)
+        if Path(download_path).exists() and Path(download_path).is_dir():
+            os.rmdir(self.download_path)
+        else:
+            os.makedirs(download_path, exist_ok=False)
+
+        if Path(transform_path).exists() and Path(transform_path).is_dir():
+            os.rmdir(self.transform_path)
+        else:
+            os.makedirs(transform_path, exist_ok=False)
 
     SNAPSHOT_URL = 'https://api.crossref.org/snapshots/monthly/{year}/{month:02d}/all.json.tar.gz'
 
@@ -90,55 +99,24 @@ class CrossrefSnapshot:
             new = {}
             for k, v in item.items():
 
-                if k == 'DOI':
-                    k = 'doi'
-
-                if k == 'URL':
-                    k = 'url'
-
-                if k == 'ISBN':
-                    k = 'isbn'
-
-                if k == 'ORCID':
-                    k = 'orcid'
+                k = k.lower()
+                k = k.replace('-', '_')
 
                 if k == 'title':
                     if isinstance(v, list) and len(v) >= 1:
                         v = v[0]
 
-                if k == 'container-title':
+                if k == 'container_title':
                     if isinstance(v, list) and len(v) >= 1:
                         v = v[0]
 
-                if k == 'ISSN':
-                    k = 'issn'
+                if k == 'issn':
                     v = ','.join(list(set(v)))
 
                 if k == 'archive':
                     v = ','.join(list(set(v)))
 
-                if k in ['approved',
-                         'created',
-                         'content-created',
-                         'content-updated',
-                         'deposited',
-                         'indexed',
-                         'issued',
-                         'posted',
-                         'accepted',
-                         'published',
-                         'published-print',
-                         'published-online',
-                         'role-start',
-                         'role-end',
-                         'updated',
-                         'award-start',
-                         'award-planned-end',
-                         'award-end',
-                         'end',
-                         'start']:
-
-                    v = item[k].get('date-parts')
+                if k == 'date_parts':
 
                     if not v:
                         v = [[]]
@@ -223,16 +201,9 @@ class CrossrefSnapshot:
             for future in as_completed(futures):
                 future.result()
 
-    def clean_up(self):
-
-        os.rmdir(self.download_path)
-        os.rmdir(self.transform_path)
-
 
 if __name__ == '__main__':
-    crossref_snapshot = CrossrefSnapshot(snapshot_date=[2023, 11],
-                                         filename='all.json',
-                                         download_path='/scratch/users/haupka/download',
-                                         transform_path='/scratch/users/haupka/transform')
 
-    crossref_snapshot.transform_release()
+    with open('/scratch/users/haupka/crossref_snapshot.pkl', 'rb') as inp:
+        crossref_snapshot = pickle.load(inp)
+        crossref_snapshot.transform_release()
