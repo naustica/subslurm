@@ -13,7 +13,7 @@ google-resumable-media==2.7.0
 googleapis-common-protos==1.62.0
 grpcio==1.60.0
 grpcio-status==1.60.0
-idna==3.6
+idna==3.7
 jsonlines==4.0.0
 packaging==23.2
 proto-plus==1.23.0
@@ -26,3 +26,5 @@ rsa==4.9
 simple-slurm==0.2.7
 six==1.16.0
 urllib3==2.1.0
+pandas~=2.2.2
+python-dotenv~=1.0.1

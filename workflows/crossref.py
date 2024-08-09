@@ -154,8 +154,6 @@ class CrossrefSnapshot:
 
                         v = v.strftime('%Y-%m-%d')
 
-                k = k.replace('-', '_')
-
                 new[k] = self.transform_item(v)
             return new
         elif isinstance(item, list):
