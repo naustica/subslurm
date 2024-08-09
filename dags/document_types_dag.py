@@ -20,12 +20,12 @@ logging.basicConfig(filename=f'{LOG_URL}/scheduler.log', encoding='utf-8', level
 logging.info('Creating Snapshot object.')
 document_type_snapshot = DocumentTypeSnapshot(model_path=f'{MODEL_URL}',
                                               download_path=f'{ETL_URL}/download',
-                                              transform_path=f'{ETL_URL}/transform')
+                                              transform_path=f'{ETL_URL}/transform_document_types')
 
 logging.info('Snapshot object created.')
 logging.info('Saving Snapshot object.')
 
-with open(f'{ETL_URL}/crossref_snapshot.pkl', 'wb') as out:
+with open(f'{ETL_URL}/document_type_snapshot.pkl', 'wb') as out:
     pickle.dump(document_type_snapshot, out, pickle.HIGHEST_PROTOCOL)
 
 logging.info('Snapshot object saved.')
