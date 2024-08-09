@@ -60,7 +60,8 @@ class DocumentTypeSnapshot:
     def transform_file(self, input_file_path: str, output_file_path: str):
         new_data = []
 
-        with open(self.model_path, 'rb') as model:
+        with open(self.model_path, 'rb') as model_file:
+            model = pickle.load(model_file)
 
             with gzip.open(input_file_path, 'r') as file:
                 for line in file:
@@ -84,19 +85,25 @@ class DocumentTypeSnapshot:
                         has_abstract = DocumentTypeSnapshot.has_abstract(abstract)
                         title_word_length = len(title.split())
 
-                        label = model.predict([[doi,
-                                                author_count,
-                                                has_license,
-                                                is_referenced_by_count,
-                                                references_count,
-                                                has_funder,
-                                                page_count,
-                                                has_abstract,
-                                                title_word_length,
-                                                inst_count,
-                                                has_oa_url]])
+                        label = model.predict_proba([[doi,
+                                                      author_count,
+                                                      has_license,
+                                                      is_referenced_by_count,
+                                                      references_count,
+                                                      has_funder,
+                                                      page_count,
+                                                      has_abstract,
+                                                      title_word_length,
+                                                      inst_count,
+                                                      has_oa_url]])
 
-                        new_data.append(dict(doi=doi, label=label))
+                        proba = label[:, 1][0]
+                        if label[:, 1][0] >= 0.5:
+                            label = 'research_discourse'
+                        else:
+                            label = 'editorial_discourse'
+
+                        new_data.append(dict(doi=doi, label=label, proba=proba))
 
                 DocumentTypeSnapshot.write_file(new_data, output_file_path)
 
