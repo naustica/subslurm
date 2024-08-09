@@ -42,7 +42,7 @@ job_id = execute_slurm_file(job_name='document_types_test',
                             dependency=None,
                             time=[0, 9, 0, 0],
                             cmd='module load python',
-                            slurm_job='python document_types.py')
+                            slurm_job='python ../workflows/document_types.py')
 
 logging.info(f'Slurm job id: {job_id}')
 

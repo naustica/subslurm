@@ -47,7 +47,7 @@ job_id = execute_slurm_file(job_name='crossref_test',
                             dependency=None,
                             time=[0, 9, 0, 0],
                             cmd='module load python',
-                            slurm_job='python crossref.py')
+                            slurm_job='python ../workflows/crossref.py')
 
 logging.info(f'Slurm job id: {job_id}')
 
