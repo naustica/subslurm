@@ -126,6 +126,12 @@ class CrossrefSnapshot:
                 if k == 'archive':
                     v = ','.join(list(set(v)))
 
+                if k == 'abstract':
+                    if bool(item.get('abstract')):
+                        v = True
+                    else:
+                        v = False
+
                 if k == 'date-parts':
 
                     if not v:
@@ -171,28 +177,6 @@ class CrossrefSnapshot:
             return [CrossrefSnapshot.transform_item(i) for i in item]
         else:
             return item
-
-    @staticmethod
-    def filter_item(item):
-
-        if 'type' not in item.keys():
-            return None
-
-        if 'issued' not in item.keys():
-            return None
-
-        for k, v in item.items():
-            if k == 'type' and v != 'journal-article':
-                return None
-            if k == 'issued':
-                filter_date = datetime(2013, 1, 1)
-                if v is None:
-                    return None
-                if v is not None:
-                    if not datetime.strptime(v, '%Y-%m-%d') >= filter_date:
-                        return None
-
-        return item
 
     def transform_release(self, max_workers: int = cpu_count()):
 
