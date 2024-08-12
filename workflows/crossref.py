@@ -83,10 +83,7 @@ class CrossrefSnapshot:
 
             transformed_item = self.transform_item(item)
 
-            filtered_item = self.filter_item(transformed_item)
-
-            if filtered_item:
-                output_data.append(filtered_item)
+            output_data.append(transformed_item)
 
         with gzip.open(output_file_path + '.gz', 'w') as output_file:
             result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in output_data]
