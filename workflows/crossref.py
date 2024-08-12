@@ -19,7 +19,6 @@
 
 import os
 import json
-import jsonlines
 import gzip
 import requests
 import functools
@@ -89,9 +88,10 @@ class CrossrefSnapshot:
             if filtered_item:
                 output_data.append(filtered_item)
 
-        with gzip.open(output_file_path, mode='wb') as output_file:
-            json_writer = jsonlines.Writer(output_file, compact=True)
-            json_writer.write_all(output_data)
+        with gzip.open(output_file_path + '.gz', 'w') as output_file:
+            result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in output_data]
+            for line in result:
+                output_file.write(line + bytes('\n', encoding='utf8'))
 
     @staticmethod
     def transform_item(item):
