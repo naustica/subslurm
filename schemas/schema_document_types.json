@@ -1,0 +1,17 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "doi",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "label",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "proba",
+    "type": "float"
+  }
+]

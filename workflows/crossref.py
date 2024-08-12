@@ -14,7 +14,7 @@
 
 # Author: Aniek Roelofs, James Diprose
 
-# Modifications copyright (C) 2023 Nick Haupka
+# Modifications copyright (C) 2024 Nick Haupka
 
 
 import os
@@ -93,30 +93,40 @@ class CrossrefSnapshot:
             json_writer = jsonlines.Writer(output_file, compact=True)
             json_writer.write_all(output_data)
 
-    def transform_item(self, item):
-
+    @staticmethod
+    def transform_item(item):
         if isinstance(item, dict):
             new = {}
             for k, v in item.items():
 
-                k = k.lower()
-                k = k.replace('-', '_')
+                if k == 'DOI':
+                    k = 'doi'
+
+                if k == 'URL':
+                    k = 'url'
+
+                if k == 'ISBN':
+                    k = 'isbn'
+
+                if k == 'ORCID':
+                    k = 'orcid'
 
                 if k == 'title':
                     if isinstance(v, list) and len(v) >= 1:
                         v = v[0]
 
-                if k == 'container_title':
+                if k == 'container-title':
                     if isinstance(v, list) and len(v) >= 1:
                         v = v[0]
 
-                if k == 'issn':
+                if k == 'ISSN':
+                    k = 'issn'
                     v = ','.join(list(set(v)))
 
                 if k == 'archive':
                     v = ','.join(list(set(v)))
 
-                if k == 'date_parts':
+                if k == 'date-parts':
 
                     if not v:
                         v = [[]]
@@ -151,13 +161,14 @@ class CrossrefSnapshot:
                         v = None
 
                     if v:
-
                         v = v.strftime('%Y-%m-%d')
 
-                new[k] = self.transform_item(v)
+                k = k.replace('-', '_')
+
+                new[k] = CrossrefSnapshot.transform_item(v)
             return new
         elif isinstance(item, list):
-            return [self.transform_item(i) for i in item]
+            return [CrossrefSnapshot.transform_item(i) for i in item]
         else:
             return item
 

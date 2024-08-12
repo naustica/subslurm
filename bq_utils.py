@@ -175,7 +175,7 @@ def create_table_from_local(table_id: str,
 
             jobs.append(job)
 
-    for n, job in enumerate(jobs, start=1):
+    for job in jobs:
         job.result()
 
 
@@ -191,7 +191,7 @@ def create_table_from_bucket(uri: str,
                              csv_skip_leading_rows: int = 0,
                              write_disposition: str = bigquery.WriteDisposition.WRITE_EMPTY,
                              table_description: str = '',
-                             ignore_unknown_values: bool = False) -> None:
+                             ignore_unknown_values: bool = False):
     """
     This function creates a table from a Google Bucket.
 
@@ -222,8 +222,6 @@ def create_table_from_bucket(uri: str,
     ------
     ValueError
         If the URI does not start with 'gs://'
-    BadRequest
-        If the creation of the table failed
     """
 
     if not uri.startswith('gs://'):
@@ -244,20 +242,11 @@ def create_table_from_bucket(uri: str,
     client = job_config.client
     dataset = job_config.dataset
 
-    load_job = None
-    result = None
+    load_job = client.load_table_from_uri(uri,
+                                          dataset.table(table_id),
+                                          job_config=job_config.config)
 
-    try:
-        load_job = client.load_table_from_uri(uri,
-                                              dataset.table(table_id),
-                                              job_config=job_config.config)
-
-        result = load_job.result()
-
-    except BadRequest as e:
-        result = e
-        if load_job:
-            result = load_job.errors
+    result = load_job.result()
 
     return result
 
@@ -304,7 +293,7 @@ def upload_files_to_bucket(bucket_name: str,
                 file_path=os.path.abspath(file))
             futures.append(future)
 
-        for n, future in enumerate(as_completed(futures), start=1):
+        for future in as_completed(futures):
             future.result()
 
 
@@ -329,3 +318,24 @@ def upload_file_to_bucket(bucket_name: str,
     blob = bucket.blob(blob_name)
 
     blob.upload_from_filename(file_path)
+
+
+def delete_files_from_bucket(bucket_name: str,
+                             gcb_dir: str) -> None:
+    """
+       This function deletes files from a Google Bucket.
+
+       Parameters
+       ----------
+       bucket_name: str
+            The name of your Google Bucket
+       gcb_dir: str
+           The name of the folder
+       """
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix=f'{gcb_dir}')
+
+    for blob in blobs:
+        blob.delete()

@@ -75,9 +75,9 @@ class DocumentTypeSnapshot:
                         is_referenced_by_count = new_item.get('is_referenced_by_count')
                         references_count = new_item.get('references_count')
                         has_funder = new_item.get('has_funder')
-                        page = new_item.get('page_count')
+                        page = new_item.get('page')
                         abstract = new_item.get('has_abstract')
-                        title = new_item.get('title_word_length')
+                        title = new_item.get('title')
                         inst_count = new_item.get('inst_count')
                         has_oa_url = new_item.get('has_oa_url')
 

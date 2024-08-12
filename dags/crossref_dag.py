@@ -2,13 +2,15 @@ import pickle
 import time
 import os
 import logging
+from pathlib import Path
 from dotenv import load_dotenv
-from bq_utils import upload_files_to_bucket, create_table_from_bucket
+from bq_utils import upload_files_to_bucket, create_table_from_bucket, delete_files_from_bucket
 from workflows.crossref import CrossrefSnapshot
 from scheduler import execute_slurm_file, get_job_status
 
 
-load_dotenv()
+dotenv_path = Path('~/.env')
+load_dotenv(dotenv_path=dotenv_path)
 ETL_URL = os.environ['ETL_URL']
 LOG_URL = os.environ['LOG_URL']
 MAIL_USER = os.environ['MAIL_USER']
@@ -18,7 +20,7 @@ logging.basicConfig(filename=f'{LOG_URL}/scheduler.log', encoding='utf-8', level
 
 
 logging.info('Creating Snapshot object.')
-crossref_snapshot = CrossrefSnapshot(snapshot_date=[2024, 2],
+crossref_snapshot = CrossrefSnapshot(snapshot_date=[2024, 7],
                                      filename='all.json',
                                      download_path=f'{ETL_URL}/download',
                                      transform_path=f'{ETL_URL}/transform')
@@ -36,7 +38,7 @@ crossref_snapshot.download()
 logging.info('Snapshot downloaded.')
 
 logging.info('Running slurm job.')
-job_id = execute_slurm_file(job_name='crossref_test',
+job_id = execute_slurm_file(job_name='crossref_snapshot',
                             mail_type='ALL',
                             mail_user=f'{MAIL_USER}',
                             partition='medium',
@@ -59,19 +61,30 @@ while job_status in [None, 'PENDING', 'RUNNING']:
 
 if job_status == 'COMPLETED':
     logging.info(f'Slurm job {job_id} ended.')
-    print(job_status)
-    """
-    upload_files_to_bucket(bucket_name='bigschol',
-                           file_path='/scratch/users/haupka/transform/*',
-                           gcb_dir='tests')
+    logging.info(f'Slurm job status: {job_status}.')
 
-    create_table_from_bucket(uri='gs://bigschol/tests/*',
-                             table_id='crossref_test',
+    logging.info(f'Upload files to Google Bucket.')
+    upload_files_to_bucket(bucket_name='bigschol',
+                           file_path=f'{ETL_URL}/transform/*',
+                           gcb_dir='crossref')
+
+    logging.info(f'Creating Table in Google BigQuery.')
+    create_table_from_bucket(uri='gs://bigschol/crossref/*',
+                             table_id='cr_instant',
                              project_id='subugoe-collaborative',
                              dataset_id='resources',
                              schema_file_path='schemas/schema_crossref.json',
                              source_format='jsonl',
                              write_disposition='WRITE_EMPTY',
-                             table_description='Test Table',
+                             table_description='Crossref Snapshot',
                              ignore_unknown_values=True)
-    """
+
+    logging.info(f'Table in Google BigQuery was created.')
+
+    logging.info(f'Removing files in Google Bucket.')
+
+    delete_files_from_bucket(bucket_name='bigschol',
+                             gcb_dir='crossref')
+
+    logging.info(f'Successfully removed files in Google Bucket.')
+
