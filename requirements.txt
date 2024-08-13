@@ -15,6 +15,7 @@ grpcio
 grpcio-status
 idna
 iniconfig
+joblib
 numpy
 packaging
 pandas
@@ -30,9 +31,12 @@ pytz
 PyYAML
 requests
 rsa
+scikit-learn
+scipy
 simple-slurm
 six
 slurm
+threadpoolctl
 tomli
 tzdata
 urllib3
