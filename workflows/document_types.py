@@ -83,7 +83,10 @@ class DocumentTypeSnapshot:
 
                         page_count = DocumentTypeSnapshot.page_counter(page)
                         has_abstract = DocumentTypeSnapshot.has_abstract(abstract)
-                        title_word_length = len(title.split())
+                        if title:
+                            title_word_length = len(title.split())
+                        else:
+                            title_word_length = 0
 
                         label = model.predict_proba([[int(author_count),
                                                       int(has_license),
