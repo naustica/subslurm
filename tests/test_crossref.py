@@ -18,10 +18,8 @@ class TestCrossrefSnapshot:
         shutil.rmtree('crossref_transform', ignore_errors=True)
 
     def test_write_file(self, crossref_snapshot):
-        filename = 'crossref_sample.json.gz'
-        filepath = 'crossref_transform'
 
-        output_file = os.path.join(filepath, filename)
+        output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
 
         data = dict()
 
@@ -31,23 +29,20 @@ class TestCrossrefSnapshot:
 
     def test_transform_file(self, crossref_snapshot):
 
-        filename = 'crossref_sample.json.gz'
-        filepath = 'crossref_transform'
+        input_file = os.path.join('test_files_crossref', 'crossref_sample.json.gz')
 
-        output_file = os.path.join(filepath, filename)
+        output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
 
-        crossref_snapshot.transform_file('test_files_crossref/crossref_sample.json.gz', output_file)
+        crossref_snapshot.transform_file(input_file, output_file)
 
         assert os.path.exists(output_file)
 
     def test_transform_snapshot(self, crossref_snapshot):
+        input_file = os.path.join('test_files_crossref', 'crossref_sample.json.gz')
 
-        filename = 'crossref_sample.json.gz'
-        filepath = 'crossref_transform'
+        output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
 
-        output_file = os.path.join(filepath, filename)
-
-        shutil.copyfile('test_files_crossref/crossref_sample.json.gz', output_file)
+        shutil.copyfile(input_file, output_file)
 
         crossref_snapshot.transform_snapshot()
 

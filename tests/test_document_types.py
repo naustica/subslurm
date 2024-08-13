@@ -28,10 +28,7 @@ class TestDocumentTypeSnapshot:
 
     def test_write_file(self, document_type_snapshot):
 
-        filename = 'document_type_sample.jsonl.gz'
-        filepath = 'document_type_transform'
-
-        output_file = os.path.join(filepath, filename)
+        output_file = os.path.join('document_type_transform', 'document_type_sample.jsonl.gz')
 
         data = dict(
             doi='',
@@ -45,22 +42,21 @@ class TestDocumentTypeSnapshot:
 
     def test_transform_file(self, document_type_snapshot):
 
-        filename = 'document_type_sample.jsonl.gz'
-        filepath = 'document_type_transform'
+        input_file = os.path.join('test_files_document_types', 'document_type_sample.jsonl.gz')
 
-        output_file = os.path.join(filepath, filename)
+        output_file = os.path.join('document_type_transform', 'document_type_sample.jsonl.gz')
 
-        document_type_snapshot.transform_file('test_files_document_types/document_type_sample.jsonl.gz', output_file)
+        document_type_snapshot.transform_file(input_file, output_file)
 
         assert os.path.exists(output_file)
 
     def test_transform_snapshot(self, document_type_snapshot):
-        filename = 'document_type_sample.jsonl.gz'
-        filepath = 'document_type_transform'
 
-        output_file = os.path.join(filepath, filename)
+        input_file = os.path.join('test_files_document_types', 'document_type_sample.jsonl.gz')
 
-        shutil.copyfile('test_files_document_types/document_type_sample.jsonl.gz', output_file)
+        output_file = os.path.join('document_type_transform', 'document_type_sample.jsonl.gz')
+
+        shutil.copyfile(input_file, output_file)
 
         document_type_snapshot.transform_snapshot()
 
