@@ -6,20 +6,22 @@ from workflows.crossref import CrossrefSnapshot
 
 class TestCrossrefSnapshot:
 
+    test_dir = os.path.abspath(os.path.dirname(__file__))
+
     @pytest.fixture
     def crossref_snapshot(self):
         snapshot = CrossrefSnapshot(
             snapshot_date=[2024, 7],
-            download_path=os.path.join('.', 'crossref_download'),
-            transform_path=os.path.join('.', 'crossref_transform')
+            download_path=os.path.join(self.test_dir, 'crossref_download'),
+            transform_path=os.path.join(self.test_dir, 'crossref_transform')
         )
         yield snapshot
-        shutil.rmtree(os.path.join('.', 'crossref_download'), ignore_errors=True)
-        shutil.rmtree(os.path.join('.', 'crossref_transform'), ignore_errors=True)
+        shutil.rmtree(os.path.join(self.test_dir, 'crossref_download'), ignore_errors=True)
+        shutil.rmtree(os.path.join(self.test_dir, 'crossref_transform'), ignore_errors=True)
 
     def test_write_file(self, crossref_snapshot):
 
-        output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
+        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.json.gz')
 
         data = dict()
 
@@ -29,19 +31,19 @@ class TestCrossrefSnapshot:
 
     def test_transform_file(self, crossref_snapshot):
 
-        input_file = os.path.join('test_files_crossref', 'crossref_sample.json.gz')
+        input_file = os.path.join(self.test_dir, 'test_files_crossref/crossref_sample.json.gz')
 
-        output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
+        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.json.gz')
 
         crossref_snapshot.transform_file(input_file, output_file)
 
         assert os.path.exists(output_file)
 
     def test_transform_snapshot(self, crossref_snapshot):
-        
-        input_file = os.path.join('test_files_crossref', 'crossref_sample.json.gz')
 
-        output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
+        input_file = os.path.join(self.test_dir, 'test_files_crossref/crossref_sample.json.gz')
+
+        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.json.gz')
 
         shutil.copyfile(input_file, output_file)
 

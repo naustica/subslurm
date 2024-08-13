@@ -6,15 +6,17 @@ from workflows.document_types import DocumentTypeSnapshot
 
 class TestDocumentTypeSnapshot:
 
+    test_dir = os.path.abspath(os.path.dirname(__file__))
+
     @pytest.fixture
     def document_type_snapshot(self):
         snapshot = DocumentTypeSnapshot(
-            model_path=os.path.join('.', 'model.pkl'),
-            download_path=os.path.join('.', 'test_files_document_types'),
-            transform_path=os.path.join('.', 'document_type_transform')
+            model_path=os.path.join(self.test_dir, 'model.pkl'),
+            download_path=os.path.join(self.test_dir, 'test_files_document_types'),
+            transform_path=os.path.join(self.test_dir, 'document_type_transform')
         )
         yield snapshot
-        shutil.rmtree(os.path.join('.', 'document_type_transform'), ignore_errors=True)
+        shutil.rmtree(os.path.join(self.test_dir, 'document_type_transform'), ignore_errors=True)
 
     def test_page_counter(self, document_type_snapshot):
 
@@ -28,7 +30,7 @@ class TestDocumentTypeSnapshot:
 
     def test_write_file(self, document_type_snapshot):
 
-        output_file = os.path.join('document_type_transform', 'document_type_sample.jsonl.gz')
+        output_file = os.path.join(self.test_dir, 'document_type_transform/document_type_sample.jsonl.gz')
 
         data = dict(
             doi='',
@@ -42,9 +44,9 @@ class TestDocumentTypeSnapshot:
 
     def test_transform_file(self, document_type_snapshot):
 
-        input_file = os.path.join('test_files_document_types', 'document_type_sample.jsonl.gz')
+        input_file = os.path.join(self.test_dir, 'test_files_document_types/document_type_sample.jsonl.gz')
 
-        output_file = os.path.join('document_type_transform', 'document_type_sample.jsonl.gz')
+        output_file = os.path.join(self.test_dir, 'document_type_transform/document_type_sample.jsonl.gz')
 
         document_type_snapshot.transform_file(input_file, output_file)
 
@@ -52,9 +54,9 @@ class TestDocumentTypeSnapshot:
 
     def test_transform_snapshot(self, document_type_snapshot):
 
-        input_file = os.path.join('test_files_document_types', 'document_type_sample.jsonl.gz')
+        input_file = os.path.join(self.test_dir, 'test_files_document_types/document_type_sample.jsonl.gz')
 
-        output_file = os.path.join('document_type_transform', 'document_type_sample.jsonl.gz')
+        output_file = os.path.join(self.test_dir, 'document_type_transform/document_type_sample.jsonl.gz')
 
         shutil.copyfile(input_file, output_file)
 
