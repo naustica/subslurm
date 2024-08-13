@@ -9,12 +9,12 @@ class TestDocumentTypeSnapshot:
     @pytest.fixture
     def document_type_snapshot(self):
         snapshot = DocumentTypeSnapshot(
-            model_path='model.pkl',
-            download_path='test_files_document_types',
-            transform_path='document_type_transform'
+            model_path=os.path.join('.', 'model.pkl'),
+            download_path=os.path.join('.', 'test_files_document_types'),
+            transform_path=os.path.join('.', 'document_type_transform')
         )
         yield snapshot
-        shutil.rmtree('document_type_transform', ignore_errors=True)
+        shutil.rmtree(os.path.join('.', 'document_type_transform'), ignore_errors=True)
 
     def test_page_counter(self, document_type_snapshot):
 

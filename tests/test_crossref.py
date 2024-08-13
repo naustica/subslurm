@@ -10,12 +10,12 @@ class TestCrossrefSnapshot:
     def crossref_snapshot(self):
         snapshot = CrossrefSnapshot(
             snapshot_date=[2024, 7],
-            download_path='crossref_download',
-            transform_path='crossref_transform'
+            download_path=os.path.join('.', 'crossref_download'),
+            transform_path=os.path.join('.', 'crossref_transform')
         )
         yield snapshot
-        shutil.rmtree('crossref_download', ignore_errors=True)
-        shutil.rmtree('crossref_transform', ignore_errors=True)
+        shutil.rmtree(os.path.join('.', 'crossref_download'), ignore_errors=True)
+        shutil.rmtree(os.path.join('.', 'crossref_transform'), ignore_errors=True)
 
     def test_write_file(self, crossref_snapshot):
 
@@ -38,6 +38,7 @@ class TestCrossrefSnapshot:
         assert os.path.exists(output_file)
 
     def test_transform_snapshot(self, crossref_snapshot):
+        
         input_file = os.path.join('test_files_crossref', 'crossref_sample.json.gz')
 
         output_file = os.path.join('crossref_transform', 'crossref_sample.json.gz')
