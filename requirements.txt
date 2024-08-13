@@ -1,6 +1,7 @@
 cachetools
 certifi
 charset-normalizer
+coverage
 exceptiongroup
 google-api-core
 google-auth
@@ -25,6 +26,7 @@ protobuf
 pyasn1
 pyasn1_modules
 pytest
+pytest-cov
 python-dateutil
 python-dotenv
 pytz
