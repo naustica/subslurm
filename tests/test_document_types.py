@@ -10,11 +10,11 @@ class TestDocumentTypeSnapshot:
     def document_type_snapshot(self):
         snapshot = DocumentTypeSnapshot(
             model_path='model.pkl',
-            download_path='test_files',
-            transform_path='transform'
+            download_path='test_files_document_types',
+            transform_path='document_type_transform'
         )
         yield snapshot
-        shutil.rmtree('transform', ignore_errors=True)
+        shutil.rmtree('document_type_transform', ignore_errors=True)
 
     def test_page_counter(self, document_type_snapshot):
 
@@ -28,8 +28,8 @@ class TestDocumentTypeSnapshot:
 
     def test_write_file(self, document_type_snapshot):
 
-        filename = 'test.jsonl.gz'
-        filepath = 'transform'
+        filename = 'document_type_sample.jsonl.gz'
+        filepath = 'document_type_transform'
 
         output_file = os.path.join(filepath, filename)
 
@@ -45,11 +45,23 @@ class TestDocumentTypeSnapshot:
 
     def test_transform_file(self, document_type_snapshot):
 
-        filename = 'test.jsonl.gz'
-        filepath = 'transform'
+        filename = 'document_type_sample.jsonl.gz'
+        filepath = 'document_type_transform'
 
         output_file = os.path.join(filepath, filename)
 
-        document_type_snapshot.transform_file('test_files/test.jsonl.gz', output_file)
+        document_type_snapshot.transform_file('test_files_document_types/document_type_sample.jsonl.gz', output_file)
+
+        assert os.path.exists(output_file)
+
+    def test_transform_snapshot(self, document_type_snapshot):
+        filename = 'document_type_sample.jsonl.gz'
+        filepath = 'document_type_transform'
+
+        output_file = os.path.join(filepath, filename)
+
+        shutil.copyfile('test_files_document_types/document_type_sample.jsonl.gz', output_file)
+
+        document_type_snapshot.transform_snapshot()
 
         assert os.path.exists(output_file)

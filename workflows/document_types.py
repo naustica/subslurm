@@ -106,7 +106,7 @@ class DocumentTypeSnapshot:
 
                 DocumentTypeSnapshot.write_file(new_data, output_file_path)
 
-    def transform_release(self, max_workers: int = cpu_count()):
+    def transform_snapshot(self, max_workers: int = cpu_count()):
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             futures = []
@@ -127,4 +127,4 @@ if __name__ == '__main__':
 
     with open('/scratch/users/haupka/document_type_snapshot.pkl', 'rb') as inp:
         document_type_snapshot = pickle.load(inp)
-        document_type_snapshot.transform_release()
+        document_type_snapshot.transform_snapshot()

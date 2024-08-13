@@ -70,23 +70,28 @@ class CrossrefSnapshot:
 
         with requests.get(url, headers=header, stream=True) as response:
             with open(self.download_path + '/' + self.filename, 'wb') as file:
-                response.raw.read = functools.partial(response.raw.read, decode_content=True)
+                response.raw.read = functools.partial(response.raw.read, decode_content=False)
                 shutil.copyfileobj(response.raw, file)
 
     def transform_file(self, input_file_path: str, output_file_path: str):
 
-        with open(input_file_path, mode='r') as input_file:
+        with gzip.open(input_file_path, mode='r') as input_file:
             input_data = json.load(input_file)
 
-        output_data = []
-        for item in input_data['items']:
+            output_data = []
+            for item in input_data['items']:
 
-            transformed_item = self.transform_item(item)
+                transformed_item = self.transform_item(item)
 
-            output_data.append(transformed_item)
+                output_data.append(transformed_item)
 
-        with gzip.open(output_file_path + '.gz', 'w') as output_file:
-            result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in output_data]
+            CrossrefSnapshot.write_file(output_data, output_file_path)
+
+    @staticmethod
+    def write_file(data, output_file_path: str):
+
+        with gzip.open(output_file_path, mode='wb') as output_file:
+            result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in data]
             for line in result:
                 output_file.write(line + bytes('\n', encoding='utf8'))
 
@@ -175,7 +180,7 @@ class CrossrefSnapshot:
         else:
             return item
 
-    def transform_release(self, max_workers: int = cpu_count()):
+    def transform_snapshot(self, max_workers: int = cpu_count()):
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             futures = []
@@ -196,4 +201,4 @@ if __name__ == '__main__':
 
     with open('/scratch/users/haupka/crossref_snapshot.pkl', 'rb') as inp:
         crossref_snapshot = pickle.load(inp)
-        crossref_snapshot.transform_release()
+        crossref_snapshot.transform_snapshot()
