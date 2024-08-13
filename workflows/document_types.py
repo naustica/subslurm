@@ -85,17 +85,16 @@ class DocumentTypeSnapshot:
                         has_abstract = DocumentTypeSnapshot.has_abstract(abstract)
                         title_word_length = len(title.split())
 
-                        label = model.predict_proba([[doi,
-                                                      author_count,
-                                                      has_license,
-                                                      is_referenced_by_count,
-                                                      references_count,
-                                                      has_funder,
-                                                      page_count,
-                                                      has_abstract,
-                                                      title_word_length,
-                                                      inst_count,
-                                                      has_oa_url]])
+                        label = model.predict_proba([[int(author_count),
+                                                      int(has_license),
+                                                      int(is_referenced_by_count),
+                                                      int(references_count),
+                                                      int(has_funder),
+                                                      int(page_count),
+                                                      int(has_abstract),
+                                                      int(title_word_length),
+                                                      int(inst_count),
+                                                      int(has_oa_url)]])
 
                         proba = label[:, 1][0]
                         if label[:, 1][0] >= 0.5:

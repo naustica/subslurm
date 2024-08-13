@@ -9,12 +9,12 @@ class TestDocumentTypeSnapshot:
     @pytest.fixture
     def document_type_snapshot(self):
         snapshot = DocumentTypeSnapshot(
-            model_path='./test',
-            download_path='./test',
-            transform_path='./test'
+            model_path='model.pkl',
+            download_path='test_files',
+            transform_path='transform'
         )
         yield snapshot
-        shutil.rmtree('./test', ignore_errors=True)
+        shutil.rmtree('transform', ignore_errors=True)
 
     def test_page_counter(self, document_type_snapshot):
 
@@ -29,7 +29,7 @@ class TestDocumentTypeSnapshot:
     def test_write_file(self, document_type_snapshot):
 
         filename = 'test.jsonl.gz'
-        filepath = './test'
+        filepath = 'transform'
 
         output_file = os.path.join(filepath, filename)
 
@@ -43,3 +43,13 @@ class TestDocumentTypeSnapshot:
 
         assert os.path.exists(output_file)
 
+    def test_transform_file(self, document_type_snapshot):
+
+        filename = 'test.jsonl.gz'
+        filepath = 'transform'
+
+        output_file = os.path.join(filepath, filename)
+
+        document_type_snapshot.transform_file('test_files/test.jsonl.gz', output_file)
+
+        assert os.path.exists(output_file)
