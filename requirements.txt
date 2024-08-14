@@ -29,6 +29,7 @@ pyasn1
 pyasn1_modules
 pytest
 pytest-cov
+python-crontab
 python-dateutil
 python-dotenv
 pytz
