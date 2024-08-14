@@ -1,7 +1,9 @@
+beautifulsoup4
 cachetools
 certifi
 charset-normalizer
 coverage
+coverage-badge
 exceptiongroup
 google-api-core
 google-auth
@@ -38,6 +40,7 @@ scipy
 simple-slurm
 six
 slurm
+soupsieve
 threadpoolctl
 tomli
 tzdata

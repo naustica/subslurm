@@ -11,13 +11,19 @@ class TestCrossrefSnapshot:
     @pytest.fixture
     def crossref_snapshot(self):
         snapshot = CrossrefSnapshot(
-            snapshot_date=[2024, 7],
             download_path=os.path.join(self.test_dir, 'crossref_download'),
             transform_path=os.path.join(self.test_dir, 'crossref_transform')
         )
         yield snapshot
         shutil.rmtree(os.path.join(self.test_dir, 'crossref_download'), ignore_errors=True)
         shutil.rmtree(os.path.join(self.test_dir, 'crossref_transform'), ignore_errors=True)
+
+    def test_get_snapshot_date(self, crossref_snapshot):
+
+        year, month = crossref_snapshot.get_latest_snapshot_date()
+
+        assert len(str(year)) == 4
+        assert len(str(month)) == 1
 
     def test_write_file(self, crossref_snapshot):
 

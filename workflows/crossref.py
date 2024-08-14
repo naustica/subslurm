@@ -24,7 +24,9 @@ import requests
 import functools
 import shutil
 import pickle
+import re
 from pathlib import Path
+from bs4 import BeautifulSoup
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import cpu_count
@@ -33,15 +35,17 @@ from multiprocessing import cpu_count
 class CrossrefSnapshot:
 
     def __init__(self,
-                 snapshot_date: list[int],
                  download_path: str,
                  transform_path: str,
+                 snapshot_date: list[int] = None,
                  filename: str = 'crossref.json'):
 
-        self.snapshot_date = snapshot_date
         self.filename = filename
         self.download_path = download_path
         self.transform_path = transform_path
+
+        if not snapshot_date:
+            self.snapshot_date = self.get_latest_snapshot_date()
 
         if Path(download_path).exists() and Path(download_path).is_dir():
             os.rmdir(self.download_path)
@@ -59,6 +63,21 @@ class CrossrefSnapshot:
     def api_token(self):
         api_token = os.environ['CROSSREF_PLUS_API_TOKEN']
         return api_token
+
+    @staticmethod
+    def get_latest_snapshot_date() -> list[int]:
+
+        page = requests.get('https://api.crossref.org/snapshots/monthly/latest/')
+
+        soup = BeautifulSoup(page.content, 'html.parser')
+
+        a = soup.find('a', href=True)
+
+        year = int(re.search(r'\d{4}', a['href']).group(0))
+
+        month = int(re.search(r'(?<=/)\d{2}(?=/)', a['href']).group(0))
+
+        return [year, month]
 
     def download(self):
 

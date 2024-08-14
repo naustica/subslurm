@@ -20,8 +20,7 @@ logging.basicConfig(filename=f'{LOG_URL}/scheduler.log', encoding='utf-8', level
 
 
 logging.info('Creating Snapshot object.')
-crossref_snapshot = CrossrefSnapshot(snapshot_date=[2024, 7],
-                                     filename='all.json',
+crossref_snapshot = CrossrefSnapshot(filename='all.json',
                                      download_path=f'{ETL_URL}/download',
                                      transform_path=f'{ETL_URL}/transform')
 
