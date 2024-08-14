@@ -322,15 +322,15 @@ def upload_file_to_bucket(bucket_name: str,
 def delete_files_from_bucket(bucket_name: str,
                              gcb_dir: str) -> None:
     """
-       This function deletes files from a Google Bucket.
+    This function deletes files from a Google Bucket.
 
-       Parameters
-       ----------
-       bucket_name: str
-            The name of your Google Bucket
-       gcb_dir: str
-           The name of the folder
-       """
+    Parameters
+    ----------
+    bucket_name: str
+         The name of your Google Bucket
+    gcb_dir: str
+        The name of the folder
+    """
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -338,3 +338,70 @@ def delete_files_from_bucket(bucket_name: str,
 
     for blob in blobs:
         blob.delete()
+
+
+def download_files_from_bucket(bucket_name: str,
+                               gcb_dir: str,
+                               file_path: str,
+                               max_processes: int = cpu_count()) -> None:
+    """
+    This function downloads files from a Google Bucket.
+
+    Parameters
+    ----------
+    bucket_name: str
+         The name of your Google Bucket
+    gcb_dir: str
+        The name of the folder
+    file_path: str
+        The directory to download to
+    max_processes: int
+        Number of concurrent tasks
+    """
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix=f'{gcb_dir}')
+
+    with ProcessPoolExecutor(max_workers=max_processes) as executor:
+        futures = []
+        for blob in blobs:
+            file_name = blob.name.split('/')[-1]
+            future = executor.submit(
+                download_file_from_bucket,
+                bucket_name,
+                gcb_dir,
+                file_path,
+                file_name)
+            futures.append(future)
+
+        for future in as_completed(futures):
+            future.result()
+
+
+def download_file_from_bucket(bucket_name: str,
+                              gcb_dir: str,
+                              file_path: str,
+                              file_name: str) -> None:
+    """
+    This function downloads a single file from a Google Bucket.
+
+    Parameters
+    ----------
+    bucket_name: str
+         The name of your Google Bucket
+    gcb_dir: str
+        The name of the folder
+    file_path: str
+        The directory to download to
+    file_name: str
+        The name of the file
+    """
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(os.path.join(gcb_dir, file_name))
+
+    file = os.path.join(file_path, file_name)
+
+    blob.download_to_filename(file)
