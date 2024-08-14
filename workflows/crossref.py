@@ -49,13 +49,13 @@ class CrossrefSnapshot:
 
         if Path(download_path).exists() and Path(download_path).is_dir():
             os.rmdir(self.download_path)
-        else:
-            os.makedirs(download_path, exist_ok=False)
+
+        os.makedirs(download_path, exist_ok=False)
 
         if Path(transform_path).exists() and Path(transform_path).is_dir():
             os.rmdir(self.transform_path)
-        else:
-            os.makedirs(transform_path, exist_ok=False)
+
+        os.makedirs(transform_path, exist_ok=False)
 
     SNAPSHOT_URL = 'https://api.crossref.org/snapshots/monthly/{year}/{month:02d}/all.json.tar.gz'
 
