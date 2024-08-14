@@ -60,7 +60,7 @@ class CrossrefSnapshot:
     SNAPSHOT_URL = 'https://api.crossref.org/snapshots/monthly/{year}/{month:02d}/all.json.tar.gz'
 
     @property
-    def api_token(self):
+    def api_token(self) -> str:
         api_token = os.environ['CROSSREF_PLUS_API_TOKEN']
         return api_token
 
@@ -79,7 +79,7 @@ class CrossrefSnapshot:
 
         return [year, month]
 
-    def download(self):
+    def download(self) -> None:
 
         year, month = self.snapshot_date
 
@@ -92,7 +92,7 @@ class CrossrefSnapshot:
                 response.raw.read = functools.partial(response.raw.read, decode_content=False)
                 shutil.copyfileobj(response.raw, file)
 
-    def transform_file(self, input_file_path: str, output_file_path: str):
+    def transform_file(self, input_file_path: str, output_file_path: str) -> None:
 
         with gzip.open(input_file_path, mode='r') as input_file:
             input_data = json.load(input_file)
@@ -107,7 +107,7 @@ class CrossrefSnapshot:
             CrossrefSnapshot.write_file(output_data, output_file_path)
 
     @staticmethod
-    def write_file(data, output_file_path: str):
+    def write_file(data, output_file_path: str) -> None:
 
         with gzip.open(output_file_path, mode='wb') as output_file:
             result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in data]
@@ -199,7 +199,7 @@ class CrossrefSnapshot:
         else:
             return item
 
-    def transform_snapshot(self, max_workers: int = cpu_count()):
+    def transform_snapshot(self, max_workers: int = cpu_count()) -> None:
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             futures = []

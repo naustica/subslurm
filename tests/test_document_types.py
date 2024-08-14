@@ -28,15 +28,30 @@ class TestDocumentTypeSnapshot:
         abstract_str = 'This is an abstract.'
         assert document_type_snapshot.has_abstract(abstract_str) == 1
 
+    def test_get_label(self, document_type_snapshot):
+
+        research_proba = 0.93
+        assert document_type_snapshot.get_label(research_proba) == 'research_discourse'
+
+        editorial_proba = 0.34
+        assert document_type_snapshot.get_label(editorial_proba) == 'editorial_discourse'
+
     def test_write_file(self, document_type_snapshot):
 
         output_file = os.path.join(self.test_dir, 'document_type_transform/document_type_sample.jsonl.gz')
 
-        data = dict(
-            doi='',
-            label='research_discourse',
-            proba=0.93
-        )
+        data = [
+            {
+                'doi': '',
+                'label': 'research_discourse',
+                'proba': 0.93
+            },
+            {
+                'doi': '',
+                'label': 'research_discourse',
+                'proba': 0.93
+            }
+        ]
 
         document_type_snapshot.write_file(data, output_file)
 

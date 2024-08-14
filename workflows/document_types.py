@@ -22,11 +22,10 @@ class DocumentTypeSnapshot:
 
         if Path(transform_path).exists() and Path(transform_path).is_dir():
             os.rmdir(self.transform_path)
-        else:
-            os.makedirs(transform_path, exist_ok=False)
+        os.makedirs(transform_path, exist_ok=False)
 
     @staticmethod
-    def page_counter(page_str):
+    def page_counter(page_str) -> int:
         page_int = 1
         if '-' in str(page_str):
             try:
@@ -43,73 +42,70 @@ class DocumentTypeSnapshot:
         return page_int
 
     @staticmethod
-    def has_abstract(abstract_str):
+    def has_abstract(abstract_str: str) -> int:
         if pd.isna(abstract_str):
             return 0
         else:
             return 1
 
     @staticmethod
-    def write_file(data, output_file_path: str):
+    def get_label(proba: float) -> str:
+        if proba >= 0.5:
+            label = 'research_discourse'
+            return label
+        else:
+            label = 'editorial_discourse'
+            return label
+
+    @staticmethod
+    def write_file(data, output_file_path: str) -> None:
 
         with gzip.open(output_file_path, mode='wb') as output_file:
             result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in data]
             for line in result:
                 output_file.write(line + bytes('\n', encoding='utf8'))
 
-    def transform_file(self, input_file_path: str, output_file_path: str):
-        new_data = []
+    def transform_file(self, input_file_path: str, output_file_path: str) -> None:
 
         with open(self.model_path, 'rb') as model_file:
             model = pickle.load(model_file)
 
             with gzip.open(input_file_path, 'r') as file:
-                for line in file:
 
-                    new_item = json.loads(line)
-                    if isinstance(new_item, dict):
+                df = pd.read_json(file,
+                                  dtype={'doi': str,
+                                         'type': str,
+                                         'has_abstract': str,
+                                         'title': str,
+                                         'page': str,
+                                         'author_count': int,
+                                         'has_license': int,
+                                         'is_referenced_by_count': int,
+                                         'references_count': int,
+                                         'has_funder': int,
+                                         'country_count': int,
+                                         'inst_count': int,
+                                         'has_oa_url': int
+                                         },
+                                  lines=True)
 
-                        doi = new_item.get('doi')
-                        author_count = new_item.get('author_count')
-                        has_license = new_item.get('has_license')
-                        is_referenced_by_count = new_item.get('is_referenced_by_count')
-                        references_count = new_item.get('references_count')
-                        has_funder = new_item.get('has_funder')
-                        page = new_item.get('page')
-                        abstract = new_item.get('has_abstract')
-                        title = new_item.get('title')
-                        inst_count = new_item.get('inst_count')
-                        has_oa_url = new_item.get('has_oa_url')
+                df['page_count'] = df.page.apply(DocumentTypeSnapshot.page_counter)
+                df['has_abstract'] = df.has_abstract.apply(DocumentTypeSnapshot.has_abstract)
+                df['title_word_length'] = df['title'].str.split().str.len()
 
-                        page_count = DocumentTypeSnapshot.page_counter(page)
-                        has_abstract = DocumentTypeSnapshot.has_abstract(abstract)
-                        if title:
-                            title_word_length = len(title.split())
-                        else:
-                            title_word_length = 0
+                X = df[['author_count', 'has_license', 'is_referenced_by_count',
+                    'references_count', 'has_funder', 'page_count', 'has_abstract',
+                    'title_word_length', 'inst_count', 'has_oa_url']].values
 
-                        label = model.predict_proba([[int(author_count),
-                                                      int(has_license),
-                                                      int(is_referenced_by_count),
-                                                      int(references_count),
-                                                      int(has_funder),
-                                                      int(page_count),
-                                                      int(has_abstract),
-                                                      int(title_word_length),
-                                                      int(inst_count),
-                                                      int(has_oa_url)]])
+                df[['editorial_discourse_proba', 'proba']] = model.predict_proba(X)
 
-                        proba = label[:, 1][0]
-                        if label[:, 1][0] >= 0.5:
-                            label = 'research_discourse'
-                        else:
-                            label = 'editorial_discourse'
+                df['label'] = df['proba'].apply(DocumentTypeSnapshot.get_label)
 
-                        new_data.append(dict(doi=doi, label=label, proba=proba))
+                new_data = df[['doi', 'label', 'proba']].to_dict('records')
 
                 DocumentTypeSnapshot.write_file(new_data, output_file_path)
 
-    def transform_snapshot(self, max_workers: int = cpu_count()):
+    def transform_snapshot(self, max_workers: int = cpu_count()) -> None:
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             futures = []
