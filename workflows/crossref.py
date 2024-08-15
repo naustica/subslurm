@@ -211,9 +211,9 @@ class CrossrefSnapshot:
                     if v:
                         v = v.strftime('%Y-%m-%d')
 
-            k = k.replace('-', '_')
+                k = k.replace('-', '_')
 
-            new[k] = CrossrefSnapshot.transform_item(v)
+                new[k] = CrossrefSnapshot.transform_item(v)
             return new
         elif isinstance(item, list):
             return [CrossrefSnapshot.transform_item(i) for i in item]
