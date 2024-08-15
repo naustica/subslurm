@@ -27,7 +27,7 @@ class TestCrossrefSnapshot:
 
     def test_write_file(self, crossref_snapshot):
 
-        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.json.gz')
+        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.jsonl.gz')
 
         data = dict()
 
@@ -39,7 +39,7 @@ class TestCrossrefSnapshot:
 
         input_file = os.path.join(self.test_dir, 'test_files_crossref/crossref_sample.json.gz')
 
-        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.json.gz')
+        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.jsonl.gz')
 
         crossref_snapshot.transform_file(input_file, output_file)
 
@@ -49,7 +49,7 @@ class TestCrossrefSnapshot:
 
         input_file = os.path.join(self.test_dir, 'test_files_crossref/crossref_sample.json.gz')
 
-        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.json.gz')
+        output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.jsonl.gz')
 
         shutil.copyfile(input_file, output_file)
 

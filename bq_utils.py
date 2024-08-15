@@ -11,8 +11,8 @@ from dataclasses import dataclass
 class JobConfig:
     project_id: str
     dataset_id: str
-    schema_file_path: str
-    source_format: str
+    schema_file_path: str = None
+    source_format: str = None
     csv_field_delimiter: str = ','
     csv_quote_character: str = '"'
     csv_allow_quoted_newlines: bool = False
@@ -338,6 +338,31 @@ def delete_files_from_bucket(bucket_name: str,
 
     for blob in blobs:
         blob.delete()
+
+
+def drop_table_in_bq(table_id: str,
+                     project_id: str,
+                     dataset_id: str) -> None:
+    """
+    This function deletes files from a Google Bucket.
+
+    Parameters
+    ----------
+    table_id: str
+        The name of the table
+    project_id: str
+        The name of the project in BigQuery
+    dataset_id: str
+        The name of the dataset in BigQuery
+    """
+
+    job_config = JobConfig(project_id=project_id,
+                           dataset_id=dataset_id)
+
+    client = job_config.client
+    dataset = job_config.dataset
+
+    client.delete_table(dataset.table(table_id), not_found_ok=True)
 
 
 def download_files_from_bucket(bucket_name: str,

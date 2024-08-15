@@ -23,7 +23,6 @@
     "type": "STRING"
   },
   {
-    "description": "Whether an abstract is given or not.",
     "mode": "NULLABLE",
     "name": "abstract",
     "type": "BOOLEAN"
