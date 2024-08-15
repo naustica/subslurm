@@ -39,7 +39,7 @@ job_id = execute_slurm_file(job_name='document_types_snapshot',
                             mail_user=f'{MAIL_USER}',
                             partition='medium',
                             constraint='scratch',
-                            cpus_per_task=16,
+                            cpus_per_task=8,
                             ntasks=1,
                             nodes=1,
                             mem='100GB',
@@ -72,7 +72,7 @@ if job_status == 'COMPLETED':
                              dataset_id='oal_doctypes',
                              schema_file_path='../schemas/schema_document_types.json',
                              source_format='jsonl',
-                             write_disposition='WRITE_EMPTY',
+                             write_disposition='WRITE_TRUNCATE',
                              table_description='Document Type Classification',
                              ignore_unknown_values=True)
 
