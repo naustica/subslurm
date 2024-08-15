@@ -33,6 +33,10 @@ with open(f'{ETL_URL}/crossref_snapshot.pkl', 'wb') as out:
 
 logging.info('Snapshot object saved.')
 
+logging.info('Retrieve snapshot date.')
+year, month = crossref_snapshot.snapshot_date
+logging.info('Snapshot date retrieved.')
+
 logging.info('Downloading snapshot.')
 crossref_snapshot.download()
 logging.info('Snapshot downloaded.')
@@ -76,8 +80,8 @@ if job_status == 'COMPLETED':
                              dataset_id='resources',
                              schema_file_path='../schemas/schema_crossref.json',
                              source_format='jsonl',
-                             write_disposition='WRITE_EMPTY',
-                             table_description='Crossref Snapshot',
+                             write_disposition='WRITE_TRUNCATE',
+                             table_description=f'{year}/{month:02d}/all.json.tar.gz',
                              ignore_unknown_values=True)
 
     logging.info(f'Table in Google BigQuery was created.')

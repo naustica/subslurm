@@ -25,6 +25,11 @@ class TestCrossrefSnapshot:
         assert len(str(year)) == 4
         assert len(str(month)) == 1
 
+        year, month = crossref_snapshot.snapshot_date
+
+        assert len(str(year)) == 4
+        assert len(str(month)) == 1
+
     def test_write_file(self, crossref_snapshot):
 
         output_file = os.path.join(self.test_dir, 'crossref_transform/crossref_sample.jsonl.gz')
