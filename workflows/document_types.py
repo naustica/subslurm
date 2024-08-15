@@ -5,6 +5,7 @@ import pickle
 from pathlib import Path
 import pandas as pd
 import re
+import shutil
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import cpu_count
 
@@ -21,7 +22,7 @@ class DocumentTypeSnapshot:
         self.transform_path = transform_path
 
         if Path(transform_path).exists() and Path(transform_path).is_dir():
-            os.rmdir(self.transform_path)
+            shutil.rmtree(self.transform_path)
         os.makedirs(transform_path, exist_ok=False)
 
     @staticmethod

@@ -70,7 +70,7 @@ if job_status == 'COMPLETED':
                              table_id='document_types_snapshot',
                              project_id='subugoe-wag-closed',
                              dataset_id='oal_doctypes',
-                             schema_file_path='schemas/schema_document_types.json',
+                             schema_file_path='../schemas/schema_document_types.json',
                              source_format='jsonl',
                              write_disposition='WRITE_EMPTY',
                              table_description='Document Type Classification',

@@ -14,6 +14,7 @@ load_dotenv(dotenv_path=dotenv_path)
 ETL_URL = os.environ['ETL_URL']
 LOG_URL = os.environ['LOG_URL']
 MAIL_USER = os.environ['MAIL_USER']
+#CROSSREF_TOKEN = os.environ['CROSSREF_PLUS_API_TOKEN']
 
 
 logging.basicConfig(filename=f'{LOG_URL}/scheduler.log', encoding='utf-8', level=logging.DEBUG)
@@ -73,7 +74,7 @@ if job_status == 'COMPLETED':
                              table_id='cr_instant',
                              project_id='subugoe-collaborative',
                              dataset_id='resources',
-                             schema_file_path='schemas/schema_crossref.json',
+                             schema_file_path='../schemas/schema_crossref.json',
                              source_format='jsonl',
                              write_disposition='WRITE_EMPTY',
                              table_description='Crossref Snapshot',

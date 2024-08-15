@@ -52,7 +52,7 @@ class TestBqUtils:
 
     @pytest.mark.skip(reason='TODO')
     def test_create_table_from_bucket(self):
-        create_table_from_bucket(uri='gs://bigschol/test/test_files_bigquery/*',
+        create_table_from_bucket(uri='gs://bigschol/test/*',
                                  table_id='test_subslurm_bq_functions',
                                  project_id='subugoe-collaborative',
                                  dataset_id='resources',
@@ -84,4 +84,4 @@ class TestBqUtils:
     @pytest.mark.skip(reason='TODO')
     def test_delete_files_from_bucket(self):
         delete_files_from_bucket(bucket_name='bigschol',
-                                 gcb_dir='test/test_files_bigquery')
+                                 gcb_dir='test')

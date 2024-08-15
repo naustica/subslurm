@@ -48,12 +48,12 @@ class CrossrefSnapshot:
             self.snapshot_date = self.get_latest_snapshot_date()
 
         if Path(download_path).exists() and Path(download_path).is_dir():
-            os.rmdir(self.download_path)
+            shutil.rmtree(self.download_path)
 
         os.makedirs(download_path, exist_ok=False)
 
         if Path(transform_path).exists() and Path(transform_path).is_dir():
-            os.rmdir(self.transform_path)
+            shutil.rmtree(self.transform_path)
 
         os.makedirs(transform_path, exist_ok=False)
 
