@@ -3,27 +3,36 @@ import json
 import gzip
 import pickle
 from pathlib import Path
-import pandas as pd
-import re
 import shutil
+import re
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import cpu_count
 
 
-class DocumentTypeSnapshot:
+class OpenAlexDocumentTypesSnapshot:
 
     def __init__(self,
                  model_path: str,
                  download_path: str,
-                 transform_path: str):
+                 transform_path: str,
+                 snapshot_date: list[int] = None):
 
         self.model_path = model_path
         self.download_path = download_path
         self.transform_path = transform_path
+        self.snapshot_date = snapshot_date
+
+        if Path(download_path).exists() and Path(download_path).is_dir():
+            shutil.rmtree(self.download_path)
+
+        os.makedirs(download_path, exist_ok=False)
 
         if Path(transform_path).exists() and Path(transform_path).is_dir():
             shutil.rmtree(self.transform_path)
+
         os.makedirs(transform_path, exist_ok=False)
+
+    SNAPSHOT_URL = 's3://openalex'
 
     @staticmethod
     def page_counter(page_str) -> int:
@@ -43,13 +52,6 @@ class DocumentTypeSnapshot:
         return page_int
 
     @staticmethod
-    def has_abstract(abstract_str: str) -> int:
-        if pd.isna(abstract_str):
-            return 0
-        else:
-            return 1
-
-    @staticmethod
     def get_label(proba: float) -> str:
         if proba >= 0.5:
             label = 'research_discourse'
@@ -57,14 +59,6 @@ class DocumentTypeSnapshot:
         else:
             label = 'editorial_discourse'
             return label
-
-    @staticmethod
-    def write_file(data, output_file_path: str) -> None:
-
-        with gzip.open(output_file_path, mode='wb') as output_file:
-            result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in data]
-            for line in result:
-                output_file.write(line + bytes('\n', encoding='utf8'))
 
     def transform_file(self, input_file_path: str, output_file_path: str) -> None:
         new_data = []
@@ -77,25 +71,47 @@ class DocumentTypeSnapshot:
 
                     new_item = json.loads(line)
                     if isinstance(new_item, dict):
-
                         doi = new_item.get('doi')
-                        author_count = new_item.get('author_count')
-                        has_license = new_item.get('has_license')
-                        is_referenced_by_count = new_item.get('is_referenced_by_count')
-                        references_count = new_item.get('references_count')
-                        has_funder = new_item.get('has_funder')
-                        page = new_item.get('page')
-                        abstract = new_item.get('has_abstract')
+                        authors = new_item.get('authorships')
+                        has_license = bool(new_item.get('license'))
+                        is_referenced_by_count = new_item.get('cited_by_count')
+                        references_works = new_item.get('referenced_works')
+                        has_funder = bool(new_item.get('grants'))
+                        first_page = new_item.get('biblio').get('first_page')
+                        last_page = new_item.get('biblio').get('last_page')
+                        has_abstract = bool(new_item.get('abstract_inverted_index'))
                         title = new_item.get('title')
-                        inst_count = new_item.get('inst_count')
-                        has_oa_url = new_item.get('has_oa_url')
+                        inst_count = new_item.get('institutions_distinct_count')
+                        has_oa_url = bool(new_item.get('open_access').get('is_oa'))
 
-                        page_count = DocumentTypeSnapshot.page_counter(page)
-                        has_abstract = DocumentTypeSnapshot.has_abstract(abstract)
+                        if doi:
+                            doi = doi.lstrip('https://doi.org/')
+
+                        if authors:
+                            author_count = len(authors)
+                        else:
+                            author_count = 0
+
+                        if references_works:
+                            references_count = len(references_works)
+                        else:
+                            references_count = 0
+
+                        if first_page:
+                            if last_page:
+                                page_count = self.page_counter(str(first_page) + '-' + str(last_page))
+                            else:
+                                page_count = self.page_counter(str(first_page))
+                        else:
+                            page_count = 1
+
                         if title:
                             title_word_length = len(title.split())
                         else:
                             title_word_length = 0
+
+                        if not inst_count:
+                            inst_count = 0
 
                         probas = model.predict_proba([[int(author_count),
                                                        int(has_license),
@@ -110,11 +126,19 @@ class DocumentTypeSnapshot:
 
                         proba = probas[:, 1][0]
 
-                        label = DocumentTypeSnapshot.get_label(proba)
+                        label = self.get_label(proba)
 
                         new_data.append(dict(doi=doi, label=label, proba=proba))
 
-                DocumentTypeSnapshot.write_file(new_data, output_file_path)
+                self.write_file(new_data, output_file_path)
+
+    @staticmethod
+    def write_file(data, output_file_path: str) -> None:
+
+        with gzip.open(output_file_path, mode='wb') as output_file:
+            result = [json.dumps(record, ensure_ascii=False).encode('utf-8') for record in data]
+            for line in result:
+                output_file.write(line + bytes('\n', encoding='utf8'))
 
     def transform_snapshot(self, max_workers: int = cpu_count()) -> None:
 
@@ -136,5 +160,5 @@ class DocumentTypeSnapshot:
 if __name__ == '__main__':
 
     with open('/scratch/users/haupka/document_type_snapshot.pkl', 'rb') as inp:
-        document_type_snapshot = pickle.load(inp)
-        document_type_snapshot.transform_snapshot()
+        openalex_works_snapshot = pickle.load(inp)
+        openalex_works_snapshot.transform_snapshot()

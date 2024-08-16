@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from dotenv import load_dotenv
 from bq_utils import upload_files_to_bucket, create_table_from_bucket, delete_files_from_bucket
-from workflows.document_types import DocumentTypeSnapshot
+from workflows.document_types import OpenAlexDocumentTypesSnapshot
 from scheduler import execute_slurm_file, get_job_status
 
 
@@ -21,7 +21,8 @@ logging.basicConfig(filename=f'{LOG_URL}/scheduler.log', encoding='utf-8', level
 
 
 logging.info('Creating Snapshot object.')
-document_type_snapshot = DocumentTypeSnapshot(model_path=f'{MODEL_URL}',
+document_type_snapshot = OpenAlexDocumentTypesSnapshot(
+                                              model_path=f'{MODEL_URL}',
                                               download_path=f'{ETL_URL}/download_document_types',
                                               transform_path=f'{ETL_URL}/transform_document_types')
 
@@ -37,12 +38,12 @@ logging.info('Running slurm job.')
 job_id = execute_slurm_file(job_name='document_types_snapshot',
                             mail_type='ALL',
                             mail_user=f'{MAIL_USER}',
-                            partition='medium',
+                            partition='fat',
                             constraint='scratch',
-                            cpus_per_task=8,
+                            cpus_per_task=16,
                             ntasks=1,
                             nodes=1,
-                            mem='100GB',
+                            mem='1TB',
                             dependency=None,
                             time=[0, 9, 0, 0],
                             cmd='module load python',

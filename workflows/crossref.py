@@ -148,10 +148,7 @@ class CrossrefSnapshot:
                     v = ','.join(list(set(v)))
 
                 if k == 'abstract':
-                    if bool(item.get('abstract')):
-                        v = True
-                    else:
-                        v = False
+                    v =  bool(item.get('abstract'))
 
                 if k in ['approved',
                          'created',
