@@ -145,13 +145,15 @@ class OpenAlexDocumentTypesSnapshot:
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             futures = []
 
-            for input_file in os.listdir(self.download_path):
-                output_file_path = os.path.join(self.transform_path,
-                                                os.path.basename(input_file) + 'l.gz')
-                future = executor.submit(self.transform_file,
-                                         input_file_path=self.download_path + '/' + input_file,
-                                         output_file_path=output_file_path)
-                futures.append(future)
+            for directory in os.listdir(self.download_path):
+                if os.path.isdir(self.download_path + '/' + directory):
+                    os.makedirs(self.transform_path + '/' + directory, exist_ok=True)
+                    for input_file in os.listdir(self.download_path + '/' + directory):
+                        output_file_path = os.path.join(self.transform_path + '/' + directory + '/' + os.path.basename(input_file))
+                        future = executor.submit(self.transform_file,
+                                                 input_file_path=self.download_path + '/' + directory + '/' + input_file,
+                                                 output_file_path=output_file_path)
+                        futures.append(future)
 
             for future in as_completed(futures):
                 future.result()

@@ -15,6 +15,7 @@ class TestOpenAlexDocumentTypesSnapshot:
             download_path=os.path.join(self.test_dir, 'openalex_download'),
             transform_path=os.path.join(self.test_dir, 'openalex_transform'),
         )
+        os.mkdir(os.path.join(self.test_dir, 'openalex_transform/updated_date=2024-07-30'))
         yield snapshot
         shutil.rmtree(os.path.join(self.test_dir, 'openalex_download'), ignore_errors=True)
         shutil.rmtree(os.path.join(self.test_dir, 'openalex_transform'), ignore_errors=True)
@@ -34,7 +35,7 @@ class TestOpenAlexDocumentTypesSnapshot:
 
     def test_write_file(self, openalex_snapshot):
 
-        output_file = os.path.join(self.test_dir, 'openalex_transform/openalex_sample.jsonl.gz')
+        output_file = os.path.join(self.test_dir, 'openalex_transform/updated_date=2024-07-30/openalex_sample.jsonl.gz')
 
         data = [
             {
@@ -55,9 +56,9 @@ class TestOpenAlexDocumentTypesSnapshot:
 
     def test_transform_file(self, openalex_snapshot):
 
-        input_file = os.path.join(self.test_dir, 'test_files_openalex/openalex_sample.jsonl.gz')
+        input_file = os.path.join(self.test_dir, 'test_files_openalex/updated_date=2024-07-30/openalex_sample.jsonl.gz')
 
-        output_file = os.path.join(self.test_dir, 'openalex_transform/openalex_sample.jsonl.gz')
+        output_file = os.path.join(self.test_dir, 'openalex_transform/updated_date=2024-07-30/openalex_sample.jsonl.gz')
 
         openalex_snapshot.transform_file(input_file, output_file)
 
@@ -65,9 +66,9 @@ class TestOpenAlexDocumentTypesSnapshot:
 
     def test_transform_snapshot(self, openalex_snapshot):
 
-        input_file = os.path.join(self.test_dir, 'test_files_openalex/openalex_sample.jsonl.gz')
+        input_file = os.path.join(self.test_dir, 'test_files_openalex/updated_date=2024-07-30/openalex_sample.jsonl.gz')
 
-        output_file = os.path.join(self.test_dir, 'openalex_transform/openalex_sample.jsonl.gz')
+        output_file = os.path.join(self.test_dir, 'openalex_transform/updated_date=2024-07-30/openalex_sample.jsonl.gz')
 
         shutil.copyfile(input_file, output_file)
 
