@@ -32,6 +32,9 @@ class OpenAlexDocumentTypesSnapshot:
 
         os.makedirs(transform_path, exist_ok=False)
 
+        self.model_file = open(self.model_path, 'rb')
+        self.model = pickle.load(self.model_file)
+
     SNAPSHOT_URL = 's3://openalex'
 
     @staticmethod
@@ -63,15 +66,24 @@ class OpenAlexDocumentTypesSnapshot:
     def transform_file(self, input_file_path: str, output_file_path: str) -> None:
         new_data = []
 
-        with open(self.model_path, 'rb') as model_file:
-            model = pickle.load(model_file)
+        with gzip.open(input_file_path, 'r') as file:
+            for line in file:
 
-            with gzip.open(input_file_path, 'r') as file:
-                for line in file:
+                new_item = json.loads(line)
+                if isinstance(new_item, dict):
 
-                    new_item = json.loads(line)
-                    if isinstance(new_item, dict):
-                        doi = new_item.get('doi')
+                    source_type = None
+
+                    primary_location = new_item.get('primary_location')
+                    if primary_location:
+                        source = primary_location.get('source')
+                        if source:
+                            source_type = source.get('type')
+
+
+                    if source_type == 'journal':
+
+                        openalex_id = new_item.get('id')
                         authors = new_item.get('authorships')
                         has_license = bool(new_item.get('license'))
                         is_referenced_by_count = new_item.get('cited_by_count')
@@ -83,9 +95,6 @@ class OpenAlexDocumentTypesSnapshot:
                         title = new_item.get('title')
                         inst_count = new_item.get('institutions_distinct_count')
                         has_oa_url = bool(new_item.get('open_access').get('is_oa'))
-
-                        if doi:
-                            doi = doi.lstrip('https://doi.org/')
 
                         if authors:
                             author_count = len(authors)
@@ -113,7 +122,7 @@ class OpenAlexDocumentTypesSnapshot:
                         if not inst_count:
                             inst_count = 0
 
-                        probas = model.predict_proba([[int(author_count),
+                        probas = self.model.predict_proba([[int(author_count),
                                                        int(has_license),
                                                        int(is_referenced_by_count),
                                                        int(references_count),
@@ -128,9 +137,9 @@ class OpenAlexDocumentTypesSnapshot:
 
                         label = self.get_label(proba)
 
-                        new_data.append(dict(doi=doi, label=label, proba=proba))
+                        new_data.append(dict(openalex_id=openalex_id, label=label, proba=proba))
 
-                self.write_file(new_data, output_file_path)
+            self.write_file(new_data, output_file_path)
 
     @staticmethod
     def write_file(data, output_file_path: str) -> None:
