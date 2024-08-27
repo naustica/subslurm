@@ -83,7 +83,7 @@ class OpenAlexDocumentTypesSnapshot:
                     item_type = new_item.get('type')
 
 
-                    if source_type == 'journal' and item_type == 'article':
+                    if source_type == 'journal' and item_type in ['article', 'review']:
 
                         openalex_id = new_item.get('id')
                         authors = new_item.get('authorships')
