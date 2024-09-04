@@ -38,14 +38,14 @@ logging.info('Running slurm job.')
 job_id = execute_slurm_file(job_name='document_types_snapshot',
                             mail_type='ALL',
                             mail_user=f'{MAIL_USER}',
-                            partition='fat',
+                            partition='medium',
                             constraint='scratch',
                             cpus_per_task=16,
                             ntasks=1,
                             nodes=1,
-                            mem='1TB',
+                            mem='100GB',
                             dependency=None,
-                            time=[0, 9, 0, 0],
+                            time=[0, 24, 0, 0],
                             cmd='module load python',
                             slurm_job='python ../workflows/document_types.py')
 

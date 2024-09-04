@@ -38,7 +38,7 @@ class OpenAlexDocumentTypesSnapshot:
     SNAPSHOT_URL = 's3://openalex'
 
     @staticmethod
-    def page_counter(page_str) -> int:
+    def page_counter(page_str: str) -> int:
         page_int = 1
         if '-' in str(page_str):
             try:
@@ -85,6 +85,7 @@ class OpenAlexDocumentTypesSnapshot:
 
                     if source_type == 'journal' and item_type in ['article', 'review']:
 
+                        doi = new_item.get('doi')
                         openalex_id = new_item.get('id')
                         authors = new_item.get('authorships')
                         has_license = bool(new_item.get('license'))
@@ -97,6 +98,9 @@ class OpenAlexDocumentTypesSnapshot:
                         title = new_item.get('title')
                         inst_count = new_item.get('institutions_distinct_count')
                         has_oa_url = bool(new_item.get('open_access').get('is_oa'))
+
+                        if doi:
+                            doi = doi.lstrip('https://doi.org/')
 
                         if authors:
                             author_count = len(authors)
@@ -139,7 +143,10 @@ class OpenAlexDocumentTypesSnapshot:
 
                         label = self.get_label(proba)
 
-                        new_data.append(dict(openalex_id=openalex_id, label=label, proba=proba))
+                        new_data.append(dict(openalex_id=openalex_id,
+                                             doi=doi,
+                                             label=label,
+                                             proba=proba))
 
             self.write_file(new_data, output_file_path)
 
@@ -160,7 +167,7 @@ class OpenAlexDocumentTypesSnapshot:
                 if os.path.isdir(self.download_path + '/' + directory):
                     os.makedirs(self.transform_path + '/' + directory, exist_ok=True)
                     for input_file in os.listdir(self.download_path + '/' + directory):
-                        output_file_path = os.path.join(self.transform_path + '/' + directory + '/' + os.path.basename(input_file))
+                        output_file_path = os.path.join(self.transform_path + '/' + directory + '/' + os.path.basename(input_file) + 'l.gz')
                         future = executor.submit(self.transform_file,
                                                  input_file_path=self.download_path + '/' + directory + '/' + input_file,
                                                  output_file_path=output_file_path)
