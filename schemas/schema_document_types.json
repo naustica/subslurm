@@ -1,6 +1,11 @@
 [
   {
     "mode": "NULLABLE",
+    "name": "openalex_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
     "name": "doi",
     "type": "STRING"
   },
