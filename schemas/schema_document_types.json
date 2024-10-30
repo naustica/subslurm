@@ -11,8 +11,8 @@
   },
   {
     "mode": "NULLABLE",
-    "name": "label",
-    "type": "STRING"
+    "name": "is_research",
+    "type": "BOOLEAN"
   },
   {
     "mode": "NULLABLE",

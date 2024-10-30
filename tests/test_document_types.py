@@ -25,13 +25,16 @@ class TestOpenAlexDocumentTypesSnapshot:
         page_str = 'e1010.e87-e1019.e87'
         assert openalex_snapshot.page_counter(page_str) == 10
 
+        page_str = '101-102'
+        assert openalex_snapshot.page_counter(page_str) == 2
+
     def test_get_label(self, openalex_snapshot):
 
         research_proba = 0.93
-        assert openalex_snapshot.get_label(research_proba) == 'research_discourse'
+        assert openalex_snapshot.get_label(research_proba) == True # 'research_discourse'
 
         editorial_proba = 0.34
-        assert openalex_snapshot.get_label(editorial_proba) == 'editorial_discourse'
+        assert openalex_snapshot.get_label(editorial_proba) == False # 'editorial_discourse'
 
     def test_write_file(self, openalex_snapshot):
 
@@ -40,12 +43,12 @@ class TestOpenAlexDocumentTypesSnapshot:
         data = [
             {
                 'doi': '',
-                'label': 'research_discourse',
+                'is_research': True,
                 'proba': 0.93
             },
             {
                 'doi': '',
-                'label': 'editorial_discourse',
+                'is_research': False,
                 'proba': 0.34
             }
         ]
