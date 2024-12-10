@@ -80,9 +80,10 @@ class OpenAlexDocumentTypesSnapshot:
                             source_type = source.get('type')
 
                     item_type = new_item.get('type')
+                    publication_year = new_item.get('publication_year')
 
 
-                    if source_type == 'journal' and item_type in ['article', 'review']:
+                    if source_type == 'journal' and item_type in ['article', 'review'] and publication_year >= 2014:
 
                         doi = new_item.get('doi')
                         openalex_id = new_item.get('id')
@@ -93,6 +94,9 @@ class OpenAlexDocumentTypesSnapshot:
                         has_funder = bool(new_item.get('grants'))
                         first_page = new_item.get('biblio').get('first_page')
                         last_page = new_item.get('biblio').get('last_page')
+                        issue = new_item.get('biblio').get('issue')
+                        is_paratext = bool(new_item.get('is_paratext'))
+                        is_retracted = bool(new_item.get('is_retracted'))
                         has_abstract = bool(new_item.get('abstract_inverted_index'))
                         title = new_item.get('title')
                         inst_count = new_item.get('institutions_distinct_count')
@@ -139,6 +143,14 @@ class OpenAlexDocumentTypesSnapshot:
                                                        int(has_oa_url)]])
 
                         proba = probas[:, 1][0]
+
+                        if issue:
+                            issue = str(issue)
+                            if 'sup' in issue.lower() or 'meet' in issue.lower():
+                                proba = 0.0
+
+                        if is_retracted or is_paratext:
+                            proba = 0.0
 
                         label = self.get_label(proba)
 
