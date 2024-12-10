@@ -22,9 +22,6 @@ class TestCrossrefSnapshot:
 
         year, month = crossref_snapshot.get_latest_snapshot_date()
 
-        print(year)
-        print(month)
-
         assert len(str(year)) == 4
         assert 1 <= len(str(month)) <= 2
 
