@@ -146,6 +146,7 @@ class OpenAlexDocumentTypesSnapshot:
 
                         if issue:
                             issue = str(issue)
+                            # credits to https://compareopenalexanddimensions.streamlit.app
                             if 'sup' in issue.lower() or 'meet' in issue.lower():
                                 proba = 0.0
 
