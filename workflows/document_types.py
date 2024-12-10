@@ -96,7 +96,6 @@ class OpenAlexDocumentTypesSnapshot:
                         last_page = new_item.get('biblio').get('last_page')
                         issue = new_item.get('biblio').get('issue')
                         is_paratext = bool(new_item.get('is_paratext'))
-                        is_retracted = bool(new_item.get('is_retracted'))
                         has_abstract = bool(new_item.get('abstract_inverted_index'))
                         title = new_item.get('title')
                         inst_count = new_item.get('institutions_distinct_count')
@@ -150,7 +149,7 @@ class OpenAlexDocumentTypesSnapshot:
                             if 'sup' in issue.lower() or 'meet' in issue.lower():
                                 proba = 0.0
 
-                        if is_retracted or is_paratext:
+                        if is_paratext:
                             proba = 0.0
 
                         label = self.get_label(proba)
