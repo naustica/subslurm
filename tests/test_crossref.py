@@ -22,13 +22,16 @@ class TestCrossrefSnapshot:
 
         year, month = crossref_snapshot.get_latest_snapshot_date()
 
+        print(year)
+        print(month)
+
         assert len(str(year)) == 4
-        assert len(str(month)) == 1
+        assert 1 <= len(str(month)) <= 2
 
         year, month = crossref_snapshot.snapshot_date
 
         assert len(str(year)) == 4
-        assert len(str(month)) == 1
+        assert 1 <= len(str(month)) <= 2
 
     def test_write_file(self, crossref_snapshot):
 
